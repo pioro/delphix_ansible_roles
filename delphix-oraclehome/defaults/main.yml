@@ -1,0 +1,5 @@
+oracle_owner: oracle
+oracle_group: oinstall
+listener_ip: "{{ ansible_nodename }}"
+listener_port: 1521
+target_home: "{{ delphix_dsource_oracle_home_name }}-{{ ansible_nodename }}"

@@ -1,0 +1,23 @@
+---
+     - name: Export ssh key
+       delegate_to: 127.0.0.1
+       shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_get_sshkey.pl -d {{ dxtoolkit_engine_name }}'
+       register: sshkey
+
+     - name: add DE ssh key to .authorized_keys
+       become: yes
+       authorized_key:
+              user={{ delphix_username }}
+              key="{{ sshkey.stdout }}"
+              state=present
+
+     - name: Check if environment is already added
+       delegate_to: 127.0.0.1
+       shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_get_env.pl -d {{ dxtoolkit_engine_name }} -name {{ ansible_nodename }} 2>&1 > /dev/null'
+       register: envcheck
+       ignore_errors: yes
+
+     - name: Add environment to Delphix Engine
+       delegate_to: 127.0.0.1
+       shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_create_env.pl -d {{ dxtoolkit_engine_name }} -envname {{ ansible_nodename }} -envtype unix -host {{ ansible_default_ipv4.address }} -toolkitdir {{ delphix_toolkit_location }} -username {{ delphix_username }} -authtype systemkey'
+       when: envcheck.rc != 0

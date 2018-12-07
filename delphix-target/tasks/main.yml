@@ -1,0 +1,31 @@
+---
+  - name: Install packages required by Oracle
+    become: yes
+    yum: name={{ item }} state=installed
+    with_items:
+        - oracle-rdbms-server-12cR1-preinstall.x86_64
+    tags: os_packages
+
+  - name: User | Add delphix toolkit user
+    become: yes
+    user: name={{ delphix_username }} group={{ delphix_group }} groups={{ delphix_add_groups }} generate_ssh_key=yes append=yes state=present password="$1$e32eru23$HapHUrLJ.ojARp6Ozv9Bk/"
+    tags:
+     - user
+
+  - name: User | Add delphix user to sudoers
+    become: yes
+    template: src=sudoers.j2 dest=/etc/sudoers.d/{{ delphix_username }} owner=root mode=0600
+    tags:
+     - sudoadd
+
+  - name: Create mount point directory
+    become: yes
+    file: path={{ delphix_mountpoint }} state=directory  owner={{ delphix_username }} group={{ delphix_group }}
+    tags:
+     - mountpoint
+
+  - name: Create toolkit directory
+    become: yes
+    file: path={{ delphix_toolkit_location }} state=directory owner={{ delphix_username }} mode=0770 group={{ delphix_group }}
+    tags:
+     - toolkitdir

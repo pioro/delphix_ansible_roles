@@ -1,0 +1,29 @@
+---
+     - name: Check if VDB is already provisioned
+       delegate_to: 127.0.0.1
+       shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_get_db_env.pl -d {{ dxtoolkit_engine_name }} -name "{{ delphix_targetname }}"'
+       register: dbcheck
+       ignore_errors: yes
+
+     - block:
+         - name: Check listener
+           sudo_user: oracle
+           sudo: yes
+           shell: 'export ORACLE_HOME={{ oracle_home }}; $ORACLE_HOME/bin/lsnrctl status'
+           register: lischeck
+           ignore_errors: yes
+           with_items: oracle_databases
+
+         - name: start listener
+           sudo_user: oracle
+           sudo: yes
+           shell: 'export ORACLE_HOME={{ oracle_home }}; $ORACLE_HOME/bin/lsnrctl start'
+           with_items: oracle_databases
+           when: "lischeck.results[0].rc != 0"
+
+         - name: Provision VDB
+           delegate_to: 127.0.0.1
+           shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_provision_vdb.pl -d {{ dxtoolkit_engine_name }} -type oracle -sourcename "{{ delphix_sourcename }}" -targetname "{{ delphix_targetname}}" -dbname {{ delphix_vdbname}} -environment {{ ansible_nodename }} -envinst "{{ oracle_home }}" -group {{ delphix_vdbgroup }} -mntpoint {{ delphix_mountpoint }}'
+           when:
+           with_items: oracle_databases
+       when: dbcheck.rc != 0

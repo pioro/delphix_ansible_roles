@@ -1,0 +1,43 @@
+---
+  - name: Install packages required by Delphix
+    yum: name={{ item }} state=installed
+    with_items: 
+        - glibc.i686
+    tags: os_packages
+
+  - name: User | Add delphix toolkit user
+    user: name=delphix group=oinstall groups=dba generate_ssh_key=yes append=yes state=present password="$1$e32eru23$HapHUrLJ.ojARp6Ozv9Bk/"
+    tags:
+     - user
+
+  - name: User | Add delphix user to sudoers
+    template: src=sudoers.j2 dest=/etc/sudoers.d/{{ delphix_username }} owner=root mode=0600
+    tags:
+     - sudoadd
+
+  - name: Create mount point directory
+    file: path={{ delphix_mountpoint }} state=directory
+    tags:
+     - mountpoint
+
+  - name: Create toolkit directory
+    file: path={{ delphix_toolkit_location }} state=directory owner={{ delphix_username }} mode=0770 group=oinstall
+    tags:
+     - mountpoint
+
+  - name: copy createDelphixDBUser.sh
+    copy: src=createDelphixDBUser.sh dest=/home/{{ delphix_username }}/createDelphixDBUser.sh owner={{ delphix_username }} mode=0700
+
+  - name: Generate input file for create db user 
+    template: src=delphixdb.j2 dest=/home/{{ delphix_username }}/asnwers owner={{ delphix_username }} mode=0600
+    with_items:
+        oracle_databases
+
+  - name: Generate input file for create db user 
+    template: src=autocreate.j2 dest=/home/{{ delphix_username }}/autocreate.sh owner={{ delphix_username }} mode=0700
+    with_items:
+        oracle_databases
+
+  - name: Create db user
+    sudo: yes
+    shell: "/home/{{ delphix_username }}/autocreate.sh"

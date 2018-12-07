@@ -1,0 +1,11 @@
+---
+ - hosts: all
+
+   roles:
+      - delphix-cleanup
+      - delphix-target
+      - delphix-env
+      - delphix-oraclehome
+      - delphix-vdb
+#      - delphix-dxtoolkit
+#      - delphix-source

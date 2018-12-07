@@ -1,0 +1,9 @@
+---
+ - hosts: all
+
+   sudo: yes
+   roles:
+      - common
+      - orahost
+      - oraswdb-install
+

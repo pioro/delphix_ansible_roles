@@ -1,0 +1,9 @@
+delphix_engine: 172.16.180.187
+delphix_engine_password: landshark
+delphix_engine_admin: delphix_admin
+delphix_sourcename: test2
+delphix_targetname: vagra
+delphix_vdbname: vagra
+delphix_vdbgroup: Analytics
+priv_ip: 172.16.180.190
+oracle_home: /u01/app/oracle/11.2.0.4/db1

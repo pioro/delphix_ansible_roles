@@ -1,0 +1,12 @@
+---
+     - name: copy dxtoolkit
+       sudo: yes
+       unarchive:
+              src=dxtoolkit2-2.0.0-redhat6.tar.gz dest=/home/delphix mode=755 owner={{ delphix_username }} group=oinstall
+
+     - name: copy config
+       sudo: yes
+       template:
+             src=dxtools.conf.j2 dest=/home/delphix/dxtoolkit2/dxtools.conf owner={{ delphix_username }} group=oinstall
+
+

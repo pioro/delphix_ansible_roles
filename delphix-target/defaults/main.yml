@@ -1,0 +1,6 @@
+---
+  delphix_username : delphix
+  delphix_group    : oinstall
+  delphix_add_groups: dba
+  delphix_mountpoint: "/delphix"
+  delphix_toolkit_location: "/u01/app/toolkit"

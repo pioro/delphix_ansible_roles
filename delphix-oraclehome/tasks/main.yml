@@ -1,0 +1,54 @@
+---
+     - name: Check if Oracle Home is already provisioned1
+       delegate_to: 127.0.0.1
+       shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_get_db_env.pl -d {{ dxtoolkit_engine_name }} -name "{{ target_home }}"'
+       register: homecheck
+       ignore_errors: yes
+
+     - block:
+
+       - name: Provision Oracle Home
+         delegate_to: 127.0.0.1
+         shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_provision_vdb.pl -d {{ dxtoolkit_engine_name }} -creategroup -type vFiles -sourcename "{{ delphix_dsource_oracle_home_name }}" -targetname "{{ target_home }}" -environment {{ ansible_nodename }} -group {{ delphix_target_group }} -path {{ oracle_home }}'
+
+       - name: Add OracleHome write permission to dbs
+         become: yes
+         become_user: "{{ oracle_owner }}"
+         file: path={{ oracle_home }}/dbs state=directory mode=0775
+
+       - name: Change listener.ora
+         become: yes
+         become_user: "{{ oracle_owner }}"
+         template: src=listener.j2 dest={{ oracle_home }}/network/admin/listener.ora
+
+       - name: remove old oraInventory
+         become: yes
+         file:
+           path: "{{ oracle_inv_loc }}"
+           state: absent
+
+       - name: recreate /etc/oraInst.loc is required
+         become: yes
+         template: src=oraInst.j2 dest=/etc/oraInst.loc owner={{ oracle_owner }}
+
+       - name: Register Oracle Home
+         become: yes
+         become_user: "{{ oracle_owner }}"
+         shell: "{{ oracle_home }}/perl/bin/perl {{ oracle_home }}/clone/bin/clone.pl ORACLE_BASE=\"{{ oracle_base }}\" ORACLE_HOME=\"{{ oracle_home }}\" OSDBA_GROUP=\"{{ oracle_dba_group }}\" -defaultHomeName"
+         register: orainv
+
+       - name: Run orainstRoot.sh is required
+         become: yes
+         shell: "/u01/app/oraInventory/orainstRoot.sh"
+         when: "'/u01/app/oraInventory/orainstRoot.sh' in orainv.stdout"
+
+       # - name: Run root.sh
+       #   become: yes
+       #   shell: "{{ oracle_home }}/root.sh"
+       #   when: "'/u01/app/oraInventory/orainstRoot.sh' in orainv.stdout"
+
+       when: homecheck.rc != 0
+
+     - name: Refresh environment in Delphix Engine
+       delegate_to: 127.0.0.1
+       shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_ctl_env.pl -d {{ dxtoolkit_engine_name }} -name {{ ansible_nodename }} -action refresh'

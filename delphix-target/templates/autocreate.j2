@@ -1,0 +1,1 @@
+su - {{ delphix_username }} -c "export ORAENV_ASK=NO; export ORACLE_SID={{ item.oracle_db_name }}; . oraenv; cat asnwers | ./createDelphixDBUser.sh"

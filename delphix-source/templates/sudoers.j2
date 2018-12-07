@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+
+Defaults:{{ delphix_username }} !requiretty
+  
+Cmnd_Alias DELPHIX_ADMIN_CMDS= \
+/bin/mount           {{ delphix_mountpoint }}/*, \
+/bin/mount   *       {{ delphix_mountpoint }}/*, \
+/bin/umount          {{ delphix_mountpoint }}/*, \
+/bin/umount  *       {{ delphix_mountpoint }}/*, \
+/bin/mkdir -p -m 755 {{ delphix_mountpoint }}/*, \
+/bin/mkdir -p        {{ delphix_mountpoint }}/*, \
+/bin/mkdir           {{ delphix_mountpoint }}/*, \
+/bin/rmdir           {{ delphix_mountpoint }}/*, \
+/bin/ps
+ 
+{{ delphix_username }} ALL=NOPASSWD:DELPHIX_ADMIN_CMDS

@@ -1,0 +1,7 @@
+---
+  delphix_username : delphix 
+  delphix_mountpoint: "/delphix" 
+  delphix_toolkit_location: "/u01/app/toolkit"
+  delphixdb_username: delphixdb
+  delphixdb_password: delphixdb
+  use_select_dir_priv: n
