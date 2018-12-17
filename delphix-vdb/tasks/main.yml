@@ -7,16 +7,16 @@
 
      - block:
          - name: Check listener
-           sudo_user: oracle
-           sudo: yes
+           become_user: "{{ oracle_owner }}"
+           become: yes
            shell: 'export ORACLE_HOME={{ oracle_home }}; $ORACLE_HOME/bin/lsnrctl status'
            register: lischeck
            ignore_errors: yes
            with_items: oracle_databases
 
          - name: start listener
-           sudo_user: oracle
-           sudo: yes
+           become_user: "{{ oracle_owner }}"
+           become: yes
            shell: 'export ORACLE_HOME={{ oracle_home }}; $ORACLE_HOME/bin/lsnrctl start'
            with_items: oracle_databases
            when: "lischeck.results[0].rc != 0"

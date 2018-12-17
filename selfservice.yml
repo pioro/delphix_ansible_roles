@@ -1,0 +1,8 @@
+---
+ - hosts: all
+
+   roles:
+       - delphix-selfservice-template
+       - delphix-selfservice-container
+#      - delphix-dxtoolkit
+#      - delphix-source

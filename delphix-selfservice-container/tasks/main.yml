@@ -1,0 +1,19 @@
+---
+     - name: Check if container is already provisioned
+       delegate_to: 127.0.0.1
+       shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_get_js_containers.pl -d {{ dxtoolkit_engine_name }} -template_name "{{ delphix_templatename }}" -container_name "{{ delphix_containername }}"'
+       register: ss_container
+       ignore_errors: yes
+
+     - block:
+         - name: Get database info
+           delegate_to: 127.0.0.1
+           shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_get_db_env.pl -d {{ dxtoolkit_engine_name }} -name {{ delphix_targetname }} -nohead -format csv | awk -F, ''{ printf("%s,%s", $4,$3); }'''
+           register: ss_create_container
+
+         - name: Create container
+           delegate_to: 127.0.0.1
+           shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_ctl_js_container.pl -d {{ dxtoolkit_engine_name }} -action create -container_name "{{ delphix_containername }}" -container_def "{{ ss_create_container.stdout }}" -template_name "{{ delphix_templatename }}" -container_owner {{ delphix_container_owner }}'
+
+
+       when: ss_container.rc !=0

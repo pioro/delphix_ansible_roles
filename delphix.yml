@@ -2,10 +2,10 @@
  - hosts: all
 
    roles:
-      - delphix-cleanup
+#      - delphix-cleanup
       - delphix-target
       - delphix-env
       - delphix-oraclehome
       - delphix-vdb
-#      - delphix-dxtoolkit
-#      - delphix-source
+      - delphix-selfservice-template
+      - delphix-selfservice-container

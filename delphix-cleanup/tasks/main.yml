@@ -1,4 +1,9 @@
 ---
+     - name: Deleting container
+       delegate_to: 127.0.0.1
+       shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_ctl_js_container.pl -d {{ dxtoolkit_engine_name }} -action delete -container_name "{{ delphix_containername }}" -dropvdb yes -template_name "{{ delphix_templatename }}"'
+       ignore_errors: yes
+
      - name: Deleting VDB's from host
        delegate_to: 127.0.0.1
        shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_remove_db.pl -d {{ dxtoolkit_engine_name }} -host "{{ ansible_default_ipv4.address }}" -skip'

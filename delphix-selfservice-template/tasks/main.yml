@@ -1,0 +1,19 @@
+---
+     - name: Check if template is already provisioned
+       delegate_to: 127.0.0.1
+       shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_get_js_templates.pl -d {{ dxtoolkit_engine_name }} -template_name "{{ delphix_templatename }}"'
+       register: ss_template
+       ignore_errors: yes
+
+     - block:
+         - name: Get database info
+           delegate_to: 127.0.0.1
+           shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_get_db_env.pl -d {{ dxtoolkit_engine_name }} -name {{ delphix_sourcename }} -config -nohead -format csv | awk -F, ''{ printf("%s, {{ delphix_sourcename }}, %s, 1", $4,$8); }'''
+           register: ss_create_template
+
+         - name: Create template
+           delegate_to: 127.0.0.1
+           shell: 'cd /mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/bin; perl dx_ctl_js_template.pl -d 53 -source "{{ ss_create_template.stdout }}"  -action create -template_name "{{ delphix_templatename }}"'
+           register: ss_create_template
+
+       when: ss_template.rc !=0
